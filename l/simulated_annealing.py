@@ -91,7 +91,7 @@ class SimulatedAnnealingWithNonImproveStoppingCriterion:
 
                 # if the cost of the neighbouring solution is lower or equal to that of the current solution
                 # accept the neighbouring solution as the current solution
-                if delta_cost <= 0:
+                if delta_cost >= 0:
                     current_solution = neighbour_solution[:]
                     current_solution_cost = neighbour_solution_cost
 
@@ -99,7 +99,8 @@ class SimulatedAnnealingWithNonImproveStoppingCriterion:
                     # accept the neighbouring solution as the best solution and reset the number of iterations
                     # without improvement
                     # otherwise, increment the number of iterations without improvement by 1
-                    if current_solution_cost < best_solution_cost:
+                    if current_solution_cost > best_solution_cost:
+                        print("found better solution ", current_solution_cost)
                         best_solution = current_solution[:]
                         best_solution_cost = current_solution_cost
                         iterations_since_last_improvement = 0
@@ -110,7 +111,7 @@ class SimulatedAnnealingWithNonImproveStoppingCriterion:
                 # accept it with probability p = e^(-deltaCost / T). If accepted, record that an uphill move occurred.
                 # Always increment the number of iterations without improvement by 1
                 else:
-                    p = math.exp(-delta_cost / temperature)
+                    p = math.exp(delta_cost / temperature)
                     if self.rng.random() < p:
                         current_solution = neighbour_solution[:]
                         current_solution_cost = neighbour_solution_cost

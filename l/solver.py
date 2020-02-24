@@ -53,9 +53,9 @@ simulated_annealing = SimulatedAnnealingWithNonImproveStoppingCriterion(
         get_neighbourhood_function(random),
         score,
         20,
-        300,
+        500,
         get_multiplicative_cooling_schedule_function(0.92),
-        10000
+        50000
     )
 
 print(simulated_annealing.run(state))
