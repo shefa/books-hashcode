@@ -1,5 +1,7 @@
 from simulated_annealing import *
 from library import *
+from ranking_utils import *
+import random
 import sys
 import timeit
 
@@ -43,5 +45,17 @@ filename = sys.argv[1]
 initial_solution = sys.argv[2]
 libraries, books, d_days = Library.from_file(filename)
 state = read_state(initial_solution)
-print(score(state))
 
+print("initial score",score(state))
+
+simulated_annealing = SimulatedAnnealingWithNonImproveStoppingCriterion(
+        random,
+        get_neighbourhood_function(random),
+        score,
+        20,
+        300,
+        get_multiplicative_cooling_schedule_function(0.92),
+        10000
+    )
+
+print(simulated_annealing.run(state))

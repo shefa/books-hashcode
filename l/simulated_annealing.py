@@ -86,7 +86,7 @@ class SimulatedAnnealingWithNonImproveStoppingCriterion:
                 # calculate the cost of the neighbouring solution by using the cost function, using the cost of the
                 # current solution as a basis, also passing any additional parameters produced by the neighbourhood
                 # function
-                neighbour_solution_cost = self.cost_function(neighbour_solution, current_solution_cost, *rest)
+                neighbour_solution_cost = self.cost_function(neighbour_solution)
                 delta_cost = neighbour_solution_cost - current_solution_cost
 
                 # if the cost of the neighbouring solution is lower or equal to that of the current solution

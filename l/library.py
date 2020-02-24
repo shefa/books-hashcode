@@ -1,34 +1,4 @@
 
-# struct lib{
-# 	int id;
-# 	int n; //10^5
-# 	int t; //signup
-# 	int m; //capacity
-# 	set<int> books;
-# 	vector<int> booksOrdered;
-# };
-
-
-# void input(){
-# 	//freopen(".in","r",stdin);
-# 	//freopen(".out","w",stdout);
-# 	cin.sync_with_stdio(0);
-# 	cin.tie(0);
-# 	cin>>b>>l>>d;
-# 	books.resize(b);
-# 	libs.resize(l);
-# 	for(int i=0;i<b;i++) cin>>books[i];
-# 	for(int i=0;i<l;i++){
-# 		libs[i].id=i;
-# 		cin>>libs[i].n>>libs[i].t>>libs[i].m;
-# 		for(int j=0;j<libs[i].n;j++) {
-# 			int tmp;
-# 			cin>>tmp;
-# 			libs[i].books.insert(tmp);
-# 		}
-# 	}
-# }
-
 class Library:
     def __init__(self, id_=0, n=0, signup=0, capacity=0, books=None, books_ordered=None):
         self.id_ = int(id_)
