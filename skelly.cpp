@@ -1,9 +1,8 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-#define ANNEALING_FEED 1
+#define ANNEALING_FEED 0
 #define DEBUG_PRINT 1
-#define out if(DEBUG_PRINT)cout
 #define endl '\n'
 #define mp make_pair
 #define pii pair<int,int>
@@ -22,39 +21,24 @@ struct lib{
 	int m; //capacity
 	unordered_set<int> lookupBooks;
 	vector<int> books;
-	vector<int> booksOrdered;
 };
 
-
-int b,l,d;
+bool final=0;
+int d;
 vector<int> books;
 vector<lib> libs, libsOrig, ans;
 
-bool sortByScore(const int  &x, const int &y){ return books[x]>books[y]; }
-
 int score(vector<lib> &libs2){
-	unordered_set<int>xx;
-	int sum=0,time=0,maxBooks;
-	for(int i=0;i<libs2.size();i++){
-		libs2[i].booksOrdered.clear();
-		if(time+libs2[i].t>=d) continue;
-		for(int j=0;j<libs2[i].books.size();j++) if(xx.insert(libs2[i].books[j]).second) libs2[i].booksOrdered.push_back(libs2[i].books[j]);
-		if(libs2[i].booksOrdered.size()){
-			//sort(libs2[i].booksOrdered.begin(),libs2[i].booksOrdered.end(),sortByScore);
-			time+=libs2[i].t;
-			maxBooks=(d-time)*libs2[i].m;
-			if(maxBooks<libs2[i].booksOrdered.size()){
-				for(int j=maxBooks;j<libs2[i].booksOrdered.size();j++){
-					xx.erase(libs2[i].booksOrdered[j]);
-				}
-				libs2[i].booksOrdered.resize(maxBooks);
-			}
-			//for(int j=0;j<libs2[i].booksOrdered.size();j++) x.insert(libs2[i].booksOrdered[j]);
-		}
-		//we can reinsert the books that current library cannot process (after D days) so next libraries can attempt to process them
-		//actually gives less score? try me
+	unordered_set<int>x;
+	int sum=0,time=0,cap=0,b=0;
+	for(auto &i: libs2){
+		if(time+i.t>=d) continue;
+		cap=(d-time-i.t)*i.m;
+		b=0;
+		for(auto &j: i.books) if(x.insert(j).second&&++b==cap) break;
+		if(b) time+=i.t;
 	}
-	for(unordered_set<int>::iterator it=xx.begin();it!=xx.end();it++) sum+=(books[*it]);
+	for(auto& i:x) sum+=books[i];
 	return sum;
 }
 
@@ -104,28 +88,48 @@ void solve(){
 	}
 }
 
-void printState(){ for(int i=0;i<ans.size();i++) cout<<ans[i].id<<" "; cout<<endl; }
-
-void output(){
-	if(ANNEALING_FEED) return printState();
-	out<<"score:"<<score(ans)<<endl<<getTime()<<endl;
-	if(DEBUG_PRINT) return;
-	cout<<ans.size()<<endl;
-	for(int i=0;i<ans.size();i++){
-		if(ans[i].booksOrdered.size()==0) continue;
-		cout<<ans[i].id<<" "<<ans[i].booksOrdered.size()<<endl;
-		for(int j=0;j<ans[i].booksOrdered.size();j++)
-			cout<<(j?" ":"")<<ans[i].booksOrdered[j];
+void make_ans(){
+	unordered_set<int>x;
+	vector<int> ids;
+	vector<vector<int> > res;
+	int time=0,cap=0,b=0;
+	for(auto &i: ans){
+		if(time+i.t>=d) continue;
+		cap=(d-time-i.t)*i.m;
+		b=0;
+		vector<int> temp;
+		for(auto &j: i.books) if(x.insert(j).second){
+			temp.push_back(j);
+			if(++b==cap) break;
+		}
+		if(b) {time+=i.t; ids.push_back(i.id); res.push_back(temp);}
+	}
+	cout<<res.size()<<endl;
+	for(int i=0;i<res.size();i++){
+		cout<<ids[i]<<" "<<res[i].size()<<endl;
+		for(int j=0;j<res[i].size();j++)
+			cout<<(j?" ":"")<<res[i][j];
 		cout<<endl;
 	}
 }
 
+void printState(){ for(int i=0;i<ans.size();i++) cout<<ans[i].id<<" "; cout<<endl;}
+void printScore(){ cout<<"score:"<<score(ans)<<endl<<getTime()<<endl; }
+
+void output(){
+	if(ANNEALING_FEED) return printState();
+	if(DEBUG_PRINT) return printScore();
+	make_ans();
+}
+
+bool sortByScore(const int  &x, const int &y){ return books[x]>books[y]; }
 
 void input(){
 	//freopen(".in","r",stdin);
 	//freopen(".out","w",stdout);
 	cin.sync_with_stdio(0);
 	cin.tie(0);
+	int b,l;
 	cin>>b>>l>>d;
 	books.resize(b);
 	libs.resize(l);
@@ -133,8 +137,9 @@ void input(){
 	for(int i=0;i<l;i++){
 		libs[i].id=i;
 		cin>>libs[i].n>>libs[i].t>>libs[i].m;
-		for(int j=0,xxx;j<libs[i].n;j++) {
-			cin>>xxx; if(libs[i].lookupBooks.insert(xxx).second) libs[i].books.push_back(xxx);
+		for(int j=0,x;j<libs[i].n;j++) {
+			cin>>x; 
+			if(libs[i].lookupBooks.insert(x).second) libs[i].books.push_back(x);
 		}
 		sort(libs[i].books.begin(),libs[i].books.end(),sortByScore);
 	}

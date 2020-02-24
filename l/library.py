@@ -47,9 +47,9 @@ class Library:
 
             def sortByScore(x,y):
                 if books[x]>books[y]:
-                    return 1
-                if books[x]<books[y]:
                     return -1
+                if books[x]<books[y]:
+                    return 1
                 return 0
 
             for i in range(len(books)):
