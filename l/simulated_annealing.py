@@ -1,5 +1,33 @@
 import math
 
+def get_neighbourhood_function(rng):
+
+    def neighbourhood_function(ranking):
+        new_ranking = ranking[:]
+        old_position = rng.randrange(len(ranking))
+        if old_position==len(ranking)-1:
+            old_position-=1
+        new_position=old_position+1
+        new_ranking[old_position], new_ranking[new_position] = new_ranking[new_position], new_ranking[old_position]
+        return new_ranking, old_position, new_position
+
+    def neighbourhood_function2(ranking):
+        new_ranking = ranking[:]
+        [old_position, new_position] = rng.sample(range(len(ranking)), 2)
+
+        are_adjacent = abs(old_position - new_position) == 1
+
+        available_positions = [x for x in range(len(ranking)) if x != old_position] if are_adjacent else None
+
+        while are_adjacent and rng.random() < 0.5:
+            new_position = rng.choice(available_positions)
+            are_adjacent = abs(old_position - new_position) == 1
+
+        new_ranking.insert(new_position, new_ranking.pop(old_position))
+
+        return new_ranking, old_position, new_position
+
+    return neighbourhood_function2
 
 def get_multiplicative_cooling_schedule_function(cooling_ratio_multiplier):
     """ Returns a cooling schedule function of the form f(T) = a*T, "a" being the cooling ratio multiplier - a real
@@ -48,6 +76,7 @@ class SimulatedAnnealingWithNonImproveStoppingCriterion:
             temperature_length,
             cooling_schedule_function,
             num_non_improve,
+            better_solution_function,
     ):
         self.rng = rng
         self.neighbourhood_function = neighbourhood_function
@@ -56,6 +85,7 @@ class SimulatedAnnealingWithNonImproveStoppingCriterion:
         self.temperature_length = temperature_length
         self.cooling_schedule_function = cooling_schedule_function
         self.num_non_improve = num_non_improve
+        self.better_solution_function = better_solution_function
 
     def run(self, initial_solution):
         number_of_uphill_moves = 0
@@ -100,7 +130,7 @@ class SimulatedAnnealingWithNonImproveStoppingCriterion:
                     # without improvement
                     # otherwise, increment the number of iterations without improvement by 1
                     if current_solution_cost > best_solution_cost:
-                        print("found better solution ", current_solution_cost)
+                        self.better_solution_function(current_solution_cost,current_solution)
                         best_solution = current_solution[:]
                         best_solution_cost = current_solution_cost
                         iterations_since_last_improvement = 0
