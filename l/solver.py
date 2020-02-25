@@ -85,7 +85,7 @@ print("initial score",score(state))
 def better_solution(score,solution):
     print("found better solution", score)
     f = open(initial_solution+'x', "w")
-    f.write(str(solution))
+    f.write(str(solution)[1:-1].replace(',',''))
     f.close()
 
 
@@ -101,3 +101,11 @@ simulated_annealing = SimulatedAnnealingWithNonImproveStoppingCriterion(
     )
 
 simulated_annealing.run(state)
+
+def timeCompare(fn1,fn2):
+    results=[0,0]
+    results[0]+=timeit.timeit(lambda: fn1(), number=500)
+    results[1]+=timeit.timeit(lambda: fn2(), number=500)
+    results[0]+=timeit.timeit(lambda: fn1(), number=500)
+    results[1]+=timeit.timeit(lambda: fn2(), number=500)
+    print(results)
