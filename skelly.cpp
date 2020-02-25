@@ -27,6 +27,7 @@ bool final=0;
 int d;
 vector<int> books;
 vector<lib> libs, libsOrig, ans;
+unordered_set<int> globalThing;
 
 int score(vector<lib> &libs2){
 	unordered_set<int>x;
@@ -38,7 +39,7 @@ int score(vector<lib> &libs2){
 		for(auto &j: i.books) if(x.insert(j).second&&++b==cap) break;
 		if(b) time+=i.t;
 	}
-	for(auto& i:x) sum+=books[i];
+	for(auto& i:x) if(globalThing.find(i)==globalThing.end()) sum+=books[i];
 	return sum;
 }
 
@@ -66,16 +67,31 @@ bool greedy3(const lib &x, const lib &y){
 	return score1>score2;
 }
 
+void iterative_greedy(){
+	int d_orig=d, cap=0,b=0;
+	for(int i=0;i<libs.size();i++){
+		for(int j=i+1;j<libs.size();j++){
+			if(greedy3(libs[i],libs[j])) swap(libs[i],libs[j]);
+		}
+		d-=libs[i].t;
+		b=0; cap=d*libs[i].m;
+		for(auto& j: libs[i].books) if(globalThing.insert(j).second&&++b==cap) break;
+	}
+	globalThing.clear();
+	d=d_orig;
+}
+
 void greedy(int type){
 	if(type==0) return sort(libs.begin(),libs.end(),greedy1);
 	if(type==1) return sort(libs.begin(),libs.end(),greedy2);
+	if(type==3) return iterative_greedy();
 	return sort(libs.begin(),libs.end(),greedy3);
 }
 
 void solve(){
 	copy(libs.begin(),libs.end(),back_inserter(libsOrig));
 	int max_score=0,sc=0;
-	for(int i=0;i<3;i++){
+	for(int i=3;i<=3;i++){
 		greedy(i);
 		sc=score(libs);
 		if(max_score<sc){

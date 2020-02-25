@@ -120,9 +120,6 @@ class SimulatedAnnealingWithNonImproveStoppingCriterion:
 
                     iterations_since_last_improvement += 1
 
-                # Stopping criterion, part 2
-                # check if after an iteration at temperature T the num_non_improve of iterations is reached
-                # if so, ignore the remaining length from TL and terminate execution
                 if iterations_since_last_improvement >= self.num_non_improve:
                     break
 

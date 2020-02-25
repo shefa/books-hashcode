@@ -25,4 +25,4 @@ def get_neighbourhood_function(rng):
 
         return new_ranking, old_position, new_position
 
-    return neighbourhood_function2
+    return neighbourhood_function
