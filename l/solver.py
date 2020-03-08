@@ -9,12 +9,13 @@ books=[]
 
 
 class Library:
-    def __init__(self, id_=0, n=0, signup=0, capacity=0, books=None):
+    def __init__(self, id_=0, n=0, signup=0, capacity=0, books=None, books_aggr=None):
         self.id_ = int(id_)
         self.n = int(n)
         self.signup = int(signup)
         self.capacity = int(capacity)
         self.books = books if books else list()
+        self.books_aggr = books_aggr if books_aggr else list()
 
     @staticmethod
     def from_file(filename):
@@ -39,7 +40,11 @@ class Library:
                     books_tmp[j]=int(books_tmp[j])
                 books_tmp=list(set(books_tmp))
                 list.sort(books_tmp,cmp=sortByScore)
-                libraries.append(Library(i, n, signup, capacity, books_tmp))
+                books_aggr=[books[books_tmp[0]]]
+                for j in range(len(books_tmp)-1):
+                    books_aggr.append(books_aggr[j]+books[books_tmp[j+1]])
+
+                libraries.append(Library(i, n, signup, capacity, books_tmp, books_aggr))
 
         return libraries, books, int(d_days)
 
@@ -67,6 +72,18 @@ def score(state):
 
     return sumz
 
+def score2(state):
+    #xx=set()
+    sumz, time = 0, 0
+    for i in [libraries[s] for s in state]:
+        if time+i.signup>=d_days:
+            continue
+        time+=i.signup
+        maxBooks=(d_days-time)*i.capacity
+        sumz+=i.books_aggr[min(maxBooks,len(i.books_aggr)-1)]
+
+    return sumz
+
 def read_state(file):
     with open(file, 'r') as file:
         #l_libraries = file.readline().strip()
@@ -80,23 +97,26 @@ initial_solution = sys.argv[2]
 libraries, books, d_days = Library.from_file(filename)
 state = read_state(initial_solution)
 
+max_score=score(state)
+
 print("initial score",score(state))
 
-def better_solution(score,solution):
-    print("found better solution", score)
-    f = open(initial_solution+'x', "w")
-    f.write(str(solution)[1:-1].replace(',',''))
-    f.close()
+def better_solution(scorez,solution):
+    if score(solution) > max_score:
+        print("found better solution", score(solution))
+        f = open(initial_solution+'x', "w")
+        f.write(str(solution)[1:-1].replace(',',''))
+        f.close()
 
 
 simulated_annealing = SimulatedAnnealingWithNonImproveStoppingCriterion(
         random,
         get_neighbourhood_function(random),
-        score,
-        20,
-        400,
+        score2,
+        30,
+        500,
         get_multiplicative_cooling_schedule_function(0.92),
-        10000,
+        1500000,
         better_solution
     )
 
